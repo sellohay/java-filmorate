@@ -16,23 +16,31 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
 
+    private static final LocalDate START_DATE = LocalDate.of(1895, 12, 28);
+    private int currentMaxId = 0;
     private final Map<Long, Film> films = new HashMap<>();
 
     //добавление фильма
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Получен запрос POST /films");
+        validateFilm(film);
+        return initializeFilm(film);
+    }
 
+    private void validateFilm(Film film) {
         if (film == null) {
             log.error("Был передан пустой фильм");
             throw new ValidationException("Фильм не был передан");
         }
 
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(START_DATE)) {
             log.error("Дата релиза фильма была раньше дня рождения кино: {}", film.getReleaseDate());
             throw new ValidationException("Дата релиза должна быть позже 28.12.1895");
         }
+    }
 
+    private Film initializeFilm(Film film) {
         film.setId(getNextId());
         log.info("Создан новый фильм с id={}", film.getId());
         films.put(film.getId(), film);
@@ -43,6 +51,27 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("Получен запрос PUT /films");
+
+        validateUpdateFilm(film);
+        Film filmToUpdate = films.get(film.getId());
+
+        log.info("Получен запрос на обновление фильма с id={}", film.getId());
+        return updateFilmFields(film, filmToUpdate);
+    }
+
+    private Film updateFilmFields(Film film, Film filmToUpdate) {
+        log.info("Новое имя фильма: {}", film.getName());
+        filmToUpdate.setName(film.getName());
+        log.info("Новое описание фильма: {}", film.getDescription());
+        filmToUpdate.setDescription(film.getDescription());
+        log.info("Новая дата релиза: {}", film.getReleaseDate());
+        filmToUpdate.setReleaseDate(film.getReleaseDate());
+        log.info("Новая длина фильма: {}", film.getDuration());
+        filmToUpdate.setDuration(film.getDuration());
+        return filmToUpdate;
+    }
+
+    private void validateUpdateFilm(Film film) {
         if (film == null || film.getId() == null) {
             log.error("Не указан ID фильма");
             throw new ValidationException("ID фильма не был передан");
@@ -52,27 +81,12 @@ public class FilmController {
             log.error("Фильм с id={} не найден", film.getId());
             throw new ValidationException("Фильм не найден");
         }
-        log.info("Получен запрос на обновление фильма с id={}", film.getId());
-
-        log.info("Новое имя фильма: {}", film.getName());
-        filmToUpdate.setName(film.getName());
-
-        log.info("Новое описание фильма: {}", film.getDescription());
-        filmToUpdate.setDescription(film.getDescription());
-
         if (film.getReleaseDate() != null) {
-            if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            if (film.getReleaseDate().isBefore(START_DATE)) {
                 log.error("Дата релиза фильма была раньше дня рождения кино: {}", film.getReleaseDate());
                 throw new ValidationException("Дата релиза должна быть позже 28.12.1895");
             }
-            log.info("Новая дата релиза: {}", film.getReleaseDate());
-            filmToUpdate.setReleaseDate(film.getReleaseDate());
         }
-
-        log.info("Новая длина фильма: {}", film.getDuration());
-        filmToUpdate.setDuration(film.getDuration());
-
-        return filmToUpdate;
     }
 
     //получение всех фильмов
@@ -85,11 +99,6 @@ public class FilmController {
     }
 
     private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
         return ++currentMaxId;
     }
 
