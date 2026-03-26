@@ -48,8 +48,7 @@ public class FilmService {
 
     public void addLike(Long userId, Long filmId) {
         userService.validateUser(userId);
-        validateFilm(filmId);
-        Film film = filmStorage.getFilmById(filmId).get();
+        Film film = validateFilm(filmId);
         Set<Long> likes = film.getLikedUsers();
         if (likes.contains(userId)) {
             log.warn("Пользователь id={} уже лайкнул фильм с id={}", userId, filmId);
@@ -60,8 +59,7 @@ public class FilmService {
 
     public void removeLike(Long userId, Long filmId) {
         userService.validateUser(userId);
-        validateFilm(filmId);
-        Film film = filmStorage.getFilmById(filmId).get();
+        Film film = validateFilm(filmId);
         Set<Long> likes = film.getLikedUsers();
         if (!likes.contains(userId)) {
             log.warn("Пользователь id={} не лайкал фильм с id={}", userId, filmId);
@@ -82,11 +80,11 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    private void validateFilm(Long id) {
-        if (filmStorage.getFilmById(id).isEmpty()) {
-            log.error("Фильм с id={} не найден", id);
-            throw new NotFoundException("Фильм с id=" + id + " не найден");
-        }
+    private Film validateFilm(Long id) {
+        return filmStorage.getFilmById(id)
+                .orElseThrow(() ->
+                        new NotFoundException("Фильм с id=" + id + " не найден")
+                );
     }
 
     private void validateCreateFilm(Film film) {
@@ -111,11 +109,9 @@ public class FilmService {
             log.error("Фильм с id={} не найден", film.getId());
             throw new NotFoundException("Фильм не найден");
         }
-        if (film.getReleaseDate() != null) {
-            if (film.getReleaseDate().isBefore(START_DATE)) {
-                log.error("Дата релиза фильма была раньше дня рождения кино: {}", film.getReleaseDate());
-                throw new ValidationException("Дата релиза должна быть позже 28.12.1895");
-            }
+        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(START_DATE)) {
+            log.error("Дата релиза фильма была раньше дня рождения кино: {}", film.getReleaseDate());
+            throw new ValidationException("Дата релиза должна быть позже 28.12.1895");
         }
     }
 }

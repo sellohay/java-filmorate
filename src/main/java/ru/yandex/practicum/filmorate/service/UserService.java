@@ -27,7 +27,6 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        log.info("АШЛИ В МЕТОД");
         validateUpdateUser(user);
         return userStorage.updateUser(user);
     }
@@ -41,48 +40,48 @@ public class UserService {
     }
 
     public Collection<User> getFriends(long id) {
-        validateUser(id);
-        return userStorage.getFriends(id);
+        User user = validateUser(id);
+        return userStorage.getFriends(user);
     }
 
     public void addFriend(Long id1, Long id2) {
-        validateUser(id1);
-        validateUser(id2);
+        User user1 = validateUser(id1);
+        User user2 = validateUser(id2);
 
-        if (userStorage.getUserById(id1).get().getFriends().contains(id2)) {
+        if (user1.getFriends().contains(id2)) {
             log.warn("Эти пользователи уже друзья!");
             return;
         }
 
-        userStorage.addFriends(id1, id2);
+        userStorage.addFriends(user1, user2);
         log.info("Пользователи с id={} и id={} теперь друзья!", id1, id2);
     }
 
     public void deleteFriend(Long id1, Long id2) {
-        validateUser(id1);
-        validateUser(id2);
+        User user1 = validateUser(id1);
+        User user2 = validateUser(id2);
 
-        if (!userStorage.getUserById(id1).get().getFriends().contains(id2)) {
+        if (!user1.getFriends().contains(id2)) {
             log.warn("Пользователи и так не друзья :(");
             return;
         }
 
-        userStorage.removeFriends(id1, id2);
+        userStorage.removeFriends(user1, user2);
         log.info("Пользователи с id={} и id={} больше не друзья :(", id1, id2);
     }
 
     public List<User> findFriendsCommon(Long id1, Long id2) {
-        validateUser(id1);
-        validateUser(id2);
+        User user1 = validateUser(id1);
+        User user2 = validateUser(id2);
 
-        return userStorage.findFriendsCommon(id1, id2);
+        return userStorage.findFriendsCommon(user1, user2);
     }
 
-    public void validateUser(Long id) {
-        if (userStorage.getUserById(id).isEmpty()) {
-            log.error("Пользователя с id={} не существует", id);
-            throw new NotFoundException("Пользователь id=" + id + " не найден");
-        }
+    public User validateUser(Long id) {
+        return userStorage.getUserById(id)
+                .orElseThrow(() ->
+                        new NotFoundException("Пользователь id=" + id + " не найден")
+                );
     }
 
     private void validateCreateUser(User user) {

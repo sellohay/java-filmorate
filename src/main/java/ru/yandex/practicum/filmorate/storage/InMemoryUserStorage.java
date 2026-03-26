@@ -46,25 +46,19 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void addFriends(long userId, long friendId) {
-        User user1 = users.get(userId);
-        User user2 = users.get(friendId);
-        user1.getFriends().add(friendId);
-        user2.getFriends().add(userId);
+    public void addFriends(User user, User friend) {
+        user.getFriends().add(friend.getId());
+        friend.getFriends().add(user.getId());
     }
 
     @Override
-    public void removeFriends(long userId, long friendId) {
-        User user1 = users.get(userId);
-        User user2 = users.get(friendId);
-        user1.getFriends().remove(friendId);
-        user2.getFriends().remove(userId);
+    public void removeFriends(User user, User friend) {
+        user.getFriends().remove(friend.getId());
+        friend.getFriends().remove(user.getId());
     }
 
     @Override
-    public List<User> findFriendsCommon(Long id1, Long id2) {
-        User user1 = users.get(id1);
-        User user2 = users.get(id2);
+    public List<User> findFriendsCommon(User user1, User user2) {
         Set<Long> friendsUser2 = user2.getFriends();
         return user1.getFriends().stream()
                 .filter(friendsUser2::contains)
@@ -73,8 +67,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> getFriends(long id) {
-        User user = users.get(id);
+    public Collection<User> getFriends(User user) {
         return user.getFriends().stream()
                 .map(users::get)
                 .toList();

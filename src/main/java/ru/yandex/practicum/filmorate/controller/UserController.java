@@ -60,13 +60,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getFriends(@PathVariable long id) {
+    public Collection<User> getFriendsCommon(@PathVariable long id) {
         log.info("Получен запрос GET /users/{}/friends", id);
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getFriends(@PathVariable long id, @PathVariable long otherId) {
+    public Collection<User> getFriendsCommon(@PathVariable long id, @PathVariable long otherId) {
         log.info("Получен запрос GET /users/{}/friends/common/{}", id, otherId);
         return userService.findFriendsCommon(id, otherId);
     }
