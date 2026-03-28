@@ -70,7 +70,7 @@ public class UserControllerTest {
 
         ResponseEntity<User> response = restTemplate.postForEntity("/users", user, User.class);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @DisplayName("Успешное создание пользователя с пустым именем")
@@ -206,7 +206,7 @@ public class UserControllerTest {
                 User.class
         );
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @DisplayName("Ошибка обновления пользователя с некорректным идентификатором")
@@ -227,6 +227,6 @@ public class UserControllerTest {
                 User.class
         );
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

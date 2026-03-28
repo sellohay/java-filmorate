@@ -7,6 +7,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 public class User {
@@ -26,4 +27,5 @@ public class User {
     @PastOrPresent(message = "Дата рождения должна быть в прошлом")
     private LocalDate birthday;
 
+    private Set<Long> friends;
 }
