@@ -28,4 +28,7 @@ public class Film {
 
     Set<Long> likedUsers;
 
+    private Set<Long> genres;
+    private Rating rating;
+
 }
