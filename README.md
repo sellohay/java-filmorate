@@ -2,7 +2,7 @@
 Template repository for Filmorate project.
 
 # ER-диаграмма
-![ER-диаграмма](./docs/erd.png)
+![ER-диаграмма](./docs/erd3.png)
 
 
 ## Примеры запросов
