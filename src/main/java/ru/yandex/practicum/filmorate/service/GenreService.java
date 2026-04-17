@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Service
