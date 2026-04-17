@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.*;
 
 @Slf4j
-@Component
+@Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
     private int currentMaxId = 0;
@@ -27,7 +27,7 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         user.setId(getNextId());
-        user.setFriends(new HashSet<>());
+        //user.setFriends(new HashSet<>());
         users.put(user.getId(), user);
         log.info("Создан пользователь с id={}", user.getId());
         return user;
@@ -47,30 +47,32 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriends(User user, User friend) {
-        user.getFriends().add(friend.getId());
-        friend.getFriends().add(user.getId());
+        /*user.getFriends().add(friend.getId());
+        friend.getFriends().add(user.getId());*/
     }
 
     @Override
     public void removeFriends(User user, User friend) {
-        user.getFriends().remove(friend.getId());
-        friend.getFriends().remove(user.getId());
+        /*user.getFriends().remove(friend.getId());
+        friend.getFriends().remove(user.getId());*/
     }
 
     @Override
     public List<User> findFriendsCommon(User user1, User user2) {
-        Set<Long> friendsUser2 = user2.getFriends();
+        /*Set<Long> friendsUser2 = user2.getFriends();
         return user1.getFriends().stream()
                 .filter(friendsUser2::contains)
                 .map(users::get)
-                .toList();
+                .toList();*/
+        return List.of();
     }
 
     @Override
     public Collection<User> getFriends(User user) {
-        return user.getFriends().stream()
+        /*return user.getFriends().stream()
                 .map(users::get)
-                .toList();
+                .toList();*/
+        return List.of();
     }
 
     private User updateUserFields(User user, User userToUpdate) {

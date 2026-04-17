@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -17,7 +18,7 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -47,27 +48,13 @@ public class UserService {
     public void addFriend(Long id1, Long id2) {
         User user1 = validateUser(id1);
         User user2 = validateUser(id2);
-
-        if (user1.getFriends().contains(id2)) {
-            log.warn("Эти пользователи уже друзья!");
-            return;
-        }
-
         userStorage.addFriends(user1, user2);
-        log.info("Пользователи с id={} и id={} теперь друзья!", id1, id2);
     }
 
     public void deleteFriend(Long id1, Long id2) {
         User user1 = validateUser(id1);
         User user2 = validateUser(id2);
-
-        if (!user1.getFriends().contains(id2)) {
-            log.warn("Пользователи и так не друзья :(");
-            return;
-        }
-
         userStorage.removeFriends(user1, user2);
-        log.info("Пользователи с id={} и id={} больше не друзья :(", id1, id2);
     }
 
     public List<User> findFriendsCommon(Long id1, Long id2) {
