@@ -36,8 +36,12 @@ public class UserService {
         return userStorage.getUsers();
     }
 
-    public Optional<User> getUserById(long id) {
-        return userStorage.getUserById(id);
+    public User getUserById(long id) {
+        Optional<User> userOpt = userStorage.getUserById(id);
+        if (userOpt.isEmpty()) {
+            throw new NotFoundException("Пользователь с id=" + id + " не найден");
+        }
+        return userOpt.get();
     }
 
     public Collection<User> getFriends(long id) {

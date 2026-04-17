@@ -48,8 +48,12 @@ public class FilmService {
         return filmStorage.getFilms();
     }
 
-    public Optional<Film> getFilmById(long id) {
-        return filmStorage.getFilmById(id);
+    public Film getFilmById(long id) {
+        Optional<Film> filmOpt = filmStorage.getFilmById(id);
+        if (filmOpt.isEmpty()) {
+            throw new NotFoundException("Фильм с id=" + id + " не найден");
+        }
+        return filmOpt.get();
     }
 
     public void addLike(Long userId, Long filmId) {
