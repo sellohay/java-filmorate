@@ -18,10 +18,14 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setDescription(resultSet.getString("description"));
         film.setReleaseDate(resultSet.getDate("release_date").toLocalDate());
         film.setDuration(resultSet.getInt("duration"));
-        Long mpaId = resultSet.getLong("mpa");
+        Long mpaId = resultSet.getLong("mpa_rating_id");
         if (!resultSet.wasNull()) {
             MpaRating mpa = new MpaRating();
             mpa.setId(mpaId);
+            try {
+                mpa.setName(resultSet.getString("rating_name"));
+            } catch (SQLException ignored) {
+            }
             film.setMpa(mpa);
         }
         return film;

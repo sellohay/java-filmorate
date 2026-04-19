@@ -11,7 +11,9 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.mapper.MpaRatingRowMapper;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,5 +47,15 @@ class MpaRatingStorageTest {
     void testGetRatingById_NotFound() {
         Optional<MpaRating> ratingOptional = mpaRatingStorage.getRatingById(999L);
         assertThat(ratingOptional).isEmpty();
+    }
+
+    @Test
+    void testGetMpaByIds() {
+        Set<Long> mpaIds = Set.of(1L, 2L, 3L);
+        Map<Long, MpaRating> mpaMap = mpaRatingStorage.getMpaByIds(mpaIds);
+        assertThat(mpaMap).hasSize(3);
+        assertThat(mpaMap.get(1L).getName()).isEqualTo("G");
+        assertThat(mpaMap.get(2L).getName()).isEqualTo("PG");
+        assertThat(mpaMap.get(3L).getName()).isEqualTo("PG-13");
     }
 }

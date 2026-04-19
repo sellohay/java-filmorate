@@ -10,8 +10,7 @@ import org.springframework.test.context.TestPropertySource;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.mapper.GenreRowMapper;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,5 +51,22 @@ class GenreStorageTest {
         Collection<Genre> genres = genreStorage.getFilmGenres(1L);
         assertThat(genres).hasSize(2);
         assertThat(genres).extracting("id").containsExactlyInAnyOrder(1L, 2L);
+    }
+
+    @Test
+    void testGetGenresForFilms() {
+        Set<Long> filmIds = Set.of(1L, 2L);
+        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresForFilms(filmIds);
+        assertThat(genresByFilm).hasSize(2);
+        assertThat(genresByFilm.get(1L)).hasSize(2);
+        assertThat(genresByFilm.get(2L)).hasSize(1);
+    }
+
+    @Test
+    void testCountGenreIds() {
+        Set<Long> genreIds = Set.of(1L, 2L, 3L);
+        Set<Long> existingIds = genreStorage.countGenreIds(genreIds);
+        assertThat(existingIds).hasSize(3);
+        assertThat(existingIds).containsExactlyInAnyOrder(1L, 2L, 3L);
     }
 }

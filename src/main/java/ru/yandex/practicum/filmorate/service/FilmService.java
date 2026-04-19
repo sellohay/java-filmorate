@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -10,9 +9,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,7 +23,7 @@ public class FilmService {
     private final MpaRatingService mpaRatingService;
     private static final LocalDate START_DATE = LocalDate.of(1895, 12, 28);
 
-    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage, UserService userService, GenreService genreService, MpaRatingService mpaRatingService) {
+    public FilmService(FilmStorage filmStorage, UserService userService, GenreService genreService, MpaRatingService mpaRatingService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.genreService = genreService;
@@ -35,17 +33,23 @@ public class FilmService {
     public Film createFilm(Film film) {
         validateCreateFilm(film);
         validateFields(film);
-        return filmStorage.createFilm(film);
+        Film created = filmStorage.createFilm(film);
+        setFilmProperties(film);
+        return created;
     }
 
     public Film updateFilm(Film film) {
         validateUpdateFilm(film);
         validateFields(film);
-        return filmStorage.updateFilm(film);
+        Film updated = filmStorage.updateFilm(film);
+        setFilmProperties(updated);
+        return updated;
     }
 
     public Collection<Film> getFilms() {
-        return filmStorage.getFilms();
+        List<Film> films = (List<Film>) filmStorage.getFilms();
+        setFilmsProperties(films);
+        return films;
     }
 
     public Film getFilmById(long id) {
@@ -53,7 +57,9 @@ public class FilmService {
         if (filmOpt.isEmpty()) {
             throw new NotFoundException("Фильм с id=" + id + " не найден");
         }
-        return filmOpt.get();
+        Film film = filmOpt.get();
+        setFilmProperties(film);
+        return film;
     }
 
     public void addLike(Long userId, Long filmId) {
@@ -74,7 +80,9 @@ public class FilmService {
             log.error("Введено неверное количество фильмов: {}", count);
             throw new ValidationException("Количество фильмов должно быть положительным");
         }
-        return filmStorage.getPopularFilms(count);
+        List<Film> films = filmStorage.getPopularFilms(count);
+        setFilmsProperties(films);
+        return films;
     }
 
     private void validateFilm(Long id) {
@@ -126,10 +134,31 @@ public class FilmService {
     }
 
     private void validateGenres(Film film) {
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            for (Genre genre : film.getGenres()) {
-                genreService.getGenreById(genre.getId());
-            }
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
+            return;
+        }
+        Set<Long> genreIds = film.getGenres().stream()
+                .map(Genre::getId)
+                .collect(Collectors.toSet());
+        genreService.validateGenres(genreIds);
+    }
+
+    private void setFilmProperties(Film film) {
+        List<Genre> genres = genreService.getFilmGenres(film.getId());
+        film.setGenres(genres);
+    }
+
+    private void setFilmsProperties(List<Film> films) {
+        if (films.isEmpty()) {
+            return;
+        }
+        Set<Long> filmIds = films.stream()
+                .map(Film::getId)
+                .collect(Collectors.toSet());
+        Map<Long, List<Genre>> genresByFilmId = genreService.getGenresForFilms(filmIds);
+        for (Film film : films) {
+            List<Genre> genres = genresByFilmId.getOrDefault(film.getId(), new ArrayList<>());
+            film.setGenres(genres);
         }
     }
 }

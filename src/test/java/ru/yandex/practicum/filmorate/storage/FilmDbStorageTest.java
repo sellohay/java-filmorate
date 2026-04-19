@@ -61,9 +61,10 @@ class FilmDbStorageTest {
                     assertThat(film.getDescription()).isEqualTo("Description 1");
                     assertThat(film.getReleaseDate()).isEqualTo(LocalDate.of(2020, 1, 1));
                     assertThat(film.getDuration()).isEqualTo(120);
+
                     assertThat(film.getMpa()).isNotNull();
                     assertThat(film.getMpa().getId()).isEqualTo(1L);
-                    assertThat(film.getGenres()).hasSize(2);
+                    assertThat(film.getMpa().getName()).isEqualTo("G");
                 });
     }
 
@@ -95,7 +96,6 @@ class FilmDbStorageTest {
 
         assertThat(created.getId()).isNotNull();
         assertThat(created.getName()).isEqualTo("New Film");
-        assertThat(created.getGenres()).hasSize(2);
     }
 
     @Test

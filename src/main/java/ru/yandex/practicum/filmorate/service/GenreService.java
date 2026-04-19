@@ -5,8 +5,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class GenreService {
@@ -29,4 +28,23 @@ public class GenreService {
         return genreOpt.get();
     }
 
+    public List<Genre> getFilmGenres(Long filmId) {
+        return genreStorage.getFilmGenres(filmId);
+    }
+
+    public Map<Long, List<Genre>> getGenresForFilms(Set<Long> filmIds) {
+        return genreStorage.getGenresForFilms(filmIds);
+    }
+
+    public void validateGenres(Set<Long> genreIds) {
+        if (genreIds.isEmpty()) {
+            return;
+        }
+        Set<Long> existingIds = genreStorage.countGenreIds(genreIds);
+        if (existingIds.size() != genreIds.size()) {
+            Set<Long> errorIds = new HashSet<>(genreIds);
+            errorIds.removeAll(existingIds);
+            throw new NotFoundException(String.format("Жанр с ID %s не найден", errorIds));
+        }
+    }
 }

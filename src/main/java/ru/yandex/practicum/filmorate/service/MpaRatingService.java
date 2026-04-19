@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.MpaRatingStorage;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class MpaRatingService {
@@ -27,5 +29,9 @@ public class MpaRatingService {
             throw new NotFoundException("Рейтинг с id=" + id + " не найден");
         }
         return ratingOpt.get();
+    }
+
+    public Map<Long, MpaRating> getMpaByIds(Set<Long> mpaIds) {
+        return storage.getMpaByIds(mpaIds);
     }
 }
