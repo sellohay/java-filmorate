@@ -11,7 +11,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@TestPropertySource(locations = "classpath:application-test.properties")
+@Sql(scripts = "/test-cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class FilmControllerTest {
 
     @Autowired
@@ -34,6 +40,8 @@ public class FilmControllerTest {
         film.setDescription("Описание 1");
         film.setReleaseDate(LocalDate.of(2006, 6, 2));
         film.setDuration(115);
+        film.setMpa(createMpa(1L));
+        film.setGenres(List.of(createGenre(1L)));
 
         ResponseEntity<Film> response = restTemplate.postForEntity("/films", film, Film.class);
 
@@ -53,6 +61,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 1");
         film.setReleaseDate(LocalDate.of(2006, 6, 2));
         film.setDuration(115);
+        film.setMpa(createMpa(1L));
 
         ResponseEntity<Film> response = restTemplate.postForEntity("/films", film, Film.class);
 
@@ -69,6 +78,7 @@ public class FilmControllerTest {
                 "2222222222222222222222222222222222222222222222222222222222222222222222222222");
         film.setReleaseDate(LocalDate.of(2006, 6, 2));
         film.setDuration(115);
+        film.setMpa(createMpa(1L));
 
         ResponseEntity<Film> response = restTemplate.postForEntity("/films", film, Film.class);
 
@@ -83,6 +93,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 3");
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
         film.setDuration(115);
+        film.setMpa(createMpa(1L));
 
         ResponseEntity<Film> response = restTemplate.postForEntity("/films", film, Film.class);
 
@@ -97,6 +108,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 4");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(-115);
+        film.setMpa(createMpa(1L));
 
         ResponseEntity<Film> response = restTemplate.postForEntity("/films", film, Film.class);
 
@@ -112,6 +124,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 1");
         film.setReleaseDate(LocalDate.of(2006, 6, 2));
         film.setDuration(115);
+        film.setMpa(createMpa(1L));
         restTemplate.postForEntity("/films", film, Film.class);
 
         film = new Film();
@@ -119,6 +132,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 2");
         film.setReleaseDate(LocalDate.of(1999, 7, 25));
         film.setDuration(87);
+        film.setMpa(createMpa(4L));
         restTemplate.postForEntity("/films", film, Film.class);
 
         film = new Film();
@@ -126,6 +140,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 3");
         film.setReleaseDate(LocalDate.of(1956, 2, 13));
         film.setDuration(94);
+        film.setMpa(createMpa(3L));
         restTemplate.postForEntity("/films", film, Film.class);
 
         ResponseEntity<List<Film>> response = restTemplate.exchange(
@@ -158,6 +173,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 1");
         film.setReleaseDate(LocalDate.of(2000, 12, 12));
         film.setDuration(115);
+        film.setMpa(createMpa(1L));
 
         restTemplate.postForEntity("/films", film, Film.class);
     }
@@ -173,6 +189,7 @@ public class FilmControllerTest {
         LocalDate newDate = LocalDate.of(2000, 11, 11);
         film.setReleaseDate(newDate); //меняем дату
         film.setDuration(115);
+        film.setMpa(createMpa(1L));
 
         ResponseEntity<Film> response = restTemplate.exchange(
                 "/films",
@@ -198,6 +215,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 1");
         film.setReleaseDate(LocalDate.of(2000, 12, 12));
         film.setDuration(-115);
+        film.setMpa(createMpa(1L));
 
         ResponseEntity<Film> response = restTemplate.exchange(
                 "/films",
@@ -219,6 +237,7 @@ public class FilmControllerTest {
         film.setDescription("Описание 1");
         film.setReleaseDate(LocalDate.of(2000, 12, 12));
         film.setDuration(120);
+        film.setMpa(createMpa(1L));
 
         ResponseEntity<Film> response = restTemplate.exchange(
                 "/films",
@@ -229,4 +248,17 @@ public class FilmControllerTest {
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
+
+    private MpaRating createMpa(Long id) {
+        MpaRating mpa = new MpaRating();
+        mpa.setId(id);
+        return mpa;
+    }
+
+    private Genre createGenre(Long id) {
+        Genre genre = new Genre();
+        genre.setId(id);
+        return genre;
+    }
+
 }

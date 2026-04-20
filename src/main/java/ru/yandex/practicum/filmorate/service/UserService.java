@@ -35,8 +35,12 @@ public class UserService {
         return userStorage.getUsers();
     }
 
-    public Optional<User> getUserById(long id) {
-        return userStorage.getUserById(id);
+    public User getUserById(long id) {
+        Optional<User> userOpt = userStorage.getUserById(id);
+        if (userOpt.isEmpty()) {
+            throw new NotFoundException("Пользователь с id=" + id + " не найден");
+        }
+        return userOpt.get();
     }
 
     public Collection<User> getFriends(long id) {
@@ -47,27 +51,13 @@ public class UserService {
     public void addFriend(Long id1, Long id2) {
         User user1 = validateUser(id1);
         User user2 = validateUser(id2);
-
-        if (user1.getFriends().contains(id2)) {
-            log.warn("Эти пользователи уже друзья!");
-            return;
-        }
-
         userStorage.addFriends(user1, user2);
-        log.info("Пользователи с id={} и id={} теперь друзья!", id1, id2);
     }
 
     public void deleteFriend(Long id1, Long id2) {
         User user1 = validateUser(id1);
         User user2 = validateUser(id2);
-
-        if (!user1.getFriends().contains(id2)) {
-            log.warn("Пользователи и так не друзья :(");
-            return;
-        }
-
         userStorage.removeFriends(user1, user2);
-        log.info("Пользователи с id={} и id={} больше не друзья :(", id1, id2);
     }
 
     public List<User> findFriendsCommon(Long id1, Long id2) {
